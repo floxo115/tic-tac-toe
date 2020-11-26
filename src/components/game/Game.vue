@@ -1,11 +1,11 @@
 <template>
   <section id="game">
-    <button @click="resetGame()">reset</button>
-    <app-gameboard/>
-    <div v-if="isTerminal">
-      <p :style="{color:'red', fontSize: '3rem'}">the game is over! <span v-if="winner==1">The player</span><span
+    <div id="game-information" v-if="isTerminal">
+      <p>the game is over! <span v-if="winner==1">The player</span><span
           v-else-if="winner==-1">The adversary</span><span v-else>Noone </span> wins!</p>
     </div>
+    <button @click="resetGame()">reset</button>
+    <app-gameboard/>
   </section>
 </template>
 
@@ -45,5 +45,31 @@ export default class GameComponent extends Vue {
 #game-board {
   border: 2px solid black;
   border-collapse: collapse;
+}
+
+#game-information {
+  position: absolute;
+  top: 300px;
+
+  background-color: darkgoldenrod;
+  border-radius: 200rem;
+  color: white;
+
+  font-size: 3rem;
+  padding: 20px 40px;
+
+  @keyframes pulsating {
+    0% {
+      transform: scale(1);
+    }
+    50%{
+      transform: scale(1.1);
+    }
+    100%{
+      transform: scale(1);
+    }
+  };
+
+  animation: pulsating infinite linear 2s;
 }
 </style>

@@ -145,6 +145,7 @@ export class GameService {
     }
 
     public next(row: number, col: number) {
+        // TODO action queue for slower animations
         this.game = this.game.result(row, col);
         this.subject.next(this.game);
 
