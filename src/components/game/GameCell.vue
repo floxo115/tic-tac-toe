@@ -33,7 +33,9 @@ export default class GameCellComponent extends Vue {
 </script>
 
 <style lang="scss" scoped>
-
+.game-cell {
+  transition: background-color 0.2s;
+}
 .player-selected {
   background-color: #55a3cd;
 }
