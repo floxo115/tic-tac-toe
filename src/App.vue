@@ -1,6 +1,6 @@
 <template>
   <div id="app" >
-    <app-header/>
+    <app-header id="app-header"/>
     <router-view/>
   </div>
 </template>
@@ -23,6 +23,10 @@ export default class AppComponent extends Vue {
   display: block;
   width: 100%;
   max-width: 1200px;
+}
+
+#app-header {
+height: 10vh;
 }
 
 </style>

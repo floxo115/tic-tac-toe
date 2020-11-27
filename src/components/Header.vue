@@ -1,6 +1,6 @@
 <template>
   <section class="header">
-
+    <h1 id="title">The unbeatable Tic Tac Toe experience</h1>
   </section>
 </template>
 
@@ -17,6 +17,16 @@ export default class HeaderComponent extends Vue {
 <style lang="scss" scoped>
 .header {
   height:50px;
-  background-color: #e8b65b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #5d81d7;
+}
+
+#title {
+  text-transform: capitalize;
+  text-align: center;
+  font-size: 4rem;
 }
 </style>

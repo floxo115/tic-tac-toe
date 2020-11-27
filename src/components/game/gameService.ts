@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {BehaviorSubject, Observable, Subject} from "rxjs";
+import {BehaviorSubject, Observable} from "rxjs";
 import {map} from 'rxjs/operators'
 
 export enum CellStatus {
@@ -62,16 +62,20 @@ export class GameRepr {
         if (this.actions().length == 0)
             return true;
 
-        return this.util(this.isPlayer()) != 0;
+        return this.util() != 0;
     }
 
-    public util(player: boolean): number {
+    public util(): number {
         // TODO BAD!
         const b = this.board;
         for (const i in this.board) {
-            if (b[i][0] != CellStatus.STATUS_NONE && b[i][0] == b[i][1] && b[i][1] == b[i][2] ||
-                b[0][i] != CellStatus.STATUS_NONE && b[0][i] == b[1][i] && b[1][i] == b[2][i]) {
+            if (b[i][0] != CellStatus.STATUS_NONE && b[i][0] == b[i][1] && b[i][1] == b[i][2]) {
                 if (b[i][0] == CellStatus.STATUS_PLAYER)
+                    return 1
+                else
+                    return -1;
+            } else if (b[0][i] != CellStatus.STATUS_NONE && b[0][i] == b[1][i] && b[1][i] == b[2][i]) {
+                if (b[0][i] == CellStatus.STATUS_PLAYER)
                     return 1
                 else
                     return -1;
@@ -103,19 +107,53 @@ class RandomGameAdversary implements GameAdversary {
 }
 
 // TODO
-// class MiniMaxGameAdversary implements GameAdversary {
-//     public next(game: GameRepr): [number, number] {
-//         return this.minimax(game);
-//     }
-// }
+class MiniMaxGameAdversary implements GameAdversary {
+    public next(game: GameRepr): [number, number] {
+        const [, bestMove] = this.minimax(game, false);
+        return bestMove;
+
+    }
+
+    private minimax(game: GameRepr, player: boolean): [number, [number, number]] {
+        if (game.isTerminalState()) {
+            console.log(game.util());
+            return [game.util(), [NaN, NaN]];
+        }
+
+        let bestMove: [number, number] = [NaN, NaN];
+        let bestVal: number;
+        if (player == true) {
+            bestVal = Number.NEGATIVE_INFINITY;
+            for (const [row, col] of game.actions()) {
+                const childState = game.result(row, col);
+                const [childVal,] = this.minimax(childState, false);
+                if (bestVal < childVal) {
+                    bestVal = childVal;
+                    bestMove = [row, col];
+                }
+            }
+        } else {
+            bestVal = Number.POSITIVE_INFINITY;
+            for (const [row, col] of game.actions()) {
+                const childState = game.result(row, col);
+                const [childVal,] = this.minimax(childState, true);
+                if (bestVal > childVal) {
+                    bestVal = childVal;
+                    bestMove = [row, col];
+                }
+            }
+        }
+
+        return [bestVal, bestMove];
+    }
+}
 
 export class GameService {
     private game: GameRepr;
     private subject: BehaviorSubject<GameRepr>;
     private observable: Observable<GameRepr>
 
-    // TODO this should come into a new class!
-    private adversary: GameAdversary = new RandomGameAdversary()
+    private adversary: GameAdversary = new MiniMaxGameAdversary()
 
     constructor() {
         this.game = new GameRepr();
@@ -141,7 +179,7 @@ export class GameService {
     }
 
     public getWinner(): Observable<number> {
-        return this.observable.pipe(map((game) => game.util(game.isPlayer())));
+        return this.observable.pipe(map((game) => game.util()));
     }
 
     public next(row: number, col: number) {

@@ -36,11 +36,10 @@ export default class GameBoardComponent extends Vue {
 #game-board {
   min-width: 500px;
   min-height:500px;
-  background-color: yellow;
 }
 
 .game-row, .game-cell {
-  border: 4px solid black;
+  border: 6px solid black;
   border-collapse: collapse;
 }
 </style>

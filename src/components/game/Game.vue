@@ -1,11 +1,11 @@
 <template>
   <section id="game">
     <div id="game-information" v-if="isTerminal">
-      <p>the game is over! <span v-if="winner==1">The player</span><span
+      <p>Game Over! <span v-if="winner==1">The player</span><span
           v-else-if="winner==-1">The adversary</span><span v-else>Noone </span> wins!</p>
     </div>
-    <button @click="resetGame()">reset</button>
     <app-gameboard/>
+    <button @click="resetGame()">reset</button>
   </section>
 </template>
 
@@ -21,7 +21,7 @@ import {gameService} from "@/components/game/gameService";
 })
 export default class GameComponent extends Vue {
   isTerminal = false;
-  winner = 0;
+  winner = Number.NaN;
 
   created() {
     gameService.getTerminalState().subscribe((gameStatus) => this.isTerminal = gameStatus);
@@ -40,6 +40,7 @@ export default class GameComponent extends Vue {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  height:90vh;
 }
 
 #game-board {
@@ -49,7 +50,7 @@ export default class GameComponent extends Vue {
 
 #game-information {
   position: absolute;
-  top: 300px;
+  top: 50vh;
 
   background-color: darkgoldenrod;
   border-radius: 200rem;
