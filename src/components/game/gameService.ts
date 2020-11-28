@@ -106,7 +106,6 @@ class RandomGameAdversary implements GameAdversary {
     }
 }
 
-// TODO
 class MiniMaxGameAdversary implements GameAdversary {
     public next(game: GameRepr): [number, number] {
         const [, bestMove] = this.minimax(game, false);
@@ -116,7 +115,6 @@ class MiniMaxGameAdversary implements GameAdversary {
 
     private minimax(game: GameRepr, player: boolean): [number, [number, number]] {
         if (game.isTerminalState()) {
-            console.log(game.util());
             return [game.util(), [NaN, NaN]];
         }
 
@@ -148,19 +146,60 @@ class MiniMaxGameAdversary implements GameAdversary {
     }
 }
 
+class AlphaBetaPrunedAdversary implements GameAdversary {
+    public next(game: GameRepr): [number, number] {
+        const [, bestMove] = this.alphabetasearch(game, false, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY);
+        return bestMove;
+    }
+
+    private alphabetasearch(game: GameRepr, player: boolean, alpha: number, beta: number): [number, [number, number]] {
+        if (game.isTerminalState()) {
+            return [game.util(), [NaN, NaN]];
+        }
+
+        let bestMove: [number, number] = [NaN, NaN];
+        let bestVal: number;
+        if (player == true) {
+            bestVal = Number.NEGATIVE_INFINITY;
+            for (const [row, col] of game.actions()) {
+                const childState = game.result(row, col);
+                const [childVal,] = this.alphabetasearch(childState, false, alpha, beta);
+                if (alpha < childVal) {
+                    alpha = childVal;
+                    bestVal = alpha;
+                    bestMove = [row, col];
+                }
+                if (childVal >= beta) break;
+            }
+        } else {
+            bestVal = Number.POSITIVE_INFINITY;
+            for (const [row, col] of game.actions()) {
+                const childState = game.result(row, col);
+                const [childVal,] = this.alphabetasearch(childState, true, alpha, beta);
+                if (beta > childVal) {
+                    beta = childVal;
+                    bestVal = beta;
+                    bestMove = [row, col];
+                }
+                if (childVal <= alpha) break;
+            }
+        }
+        return [bestVal, bestMove];
+    }
+}
+
 export class GameService {
     private game: GameRepr;
     private subject: BehaviorSubject<GameRepr>;
     private observable: Observable<GameRepr>
 
-    private adversary: GameAdversary = new MiniMaxGameAdversary()
+    private adversary: GameAdversary = new AlphaBetaPrunedAdversary()
 
     constructor() {
         this.game = new GameRepr();
         this.subject = new BehaviorSubject(this.game);
         this.observable = this.subject.asObservable();
     }
-
 
     public getGame(): Observable<GameRepr> {
         return this.subject.asObservable();
@@ -183,7 +222,6 @@ export class GameService {
     }
 
     public next(row: number, col: number) {
-        // TODO action queue for slower animations
         this.game = this.game.result(row, col);
         this.subject.next(this.game);
 
@@ -197,6 +235,21 @@ export class GameService {
     public resetGame() {
         this.game = new GameRepr()
         this.subject.next(this.game)
+    }
+
+    public setAdversaryToRandom() {
+        console.log("set adversary to random");
+        this.adversary = new RandomGameAdversary();
+    }
+
+    public setAdversaryToMinimax() {
+        console.log("set adversary to minimax");
+        this.adversary = new MiniMaxGameAdversary();
+    }
+
+    public setAdversaryToAlphaBetaPrune() {
+        console.log("set adversary to alphabetapruned");
+        this.adversary = new AlphaBetaPrunedAdversary();
     }
 }
 

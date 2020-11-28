@@ -7,7 +7,7 @@ Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
     {
-        path: "/game", component: GameComponent
+        path: "/", component: GameComponent
     }
 ]
 
